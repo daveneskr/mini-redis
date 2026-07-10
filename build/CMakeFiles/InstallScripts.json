@@ -1,8 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"/Users/davidneskrabal/Projects/mini-redis/build/cmake_install.cmake",
-		"/Users/davidneskrabal/Projects/mini-redis/build/_deps/unity-build/cmake_install.cmake"
-	],
-	"Parallel" : false
-}
