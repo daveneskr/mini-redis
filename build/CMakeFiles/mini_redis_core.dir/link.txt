@@ -1,0 +1,2 @@
+/usr/bin/ar qc libmini_redis_core.a CMakeFiles/mini_redis_core.dir/src/mini_redis.c.o
+/usr/bin/ranlib libmini_redis_core.a

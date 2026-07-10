@@ -1,0 +1,1 @@
+/usr/bin/cc -g -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/test_smoke.dir/tests/test_smoke.c.o -o test_smoke  libmini_redis_core.a _deps/unity-build/libunity.a
