@@ -10,6 +10,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 # -----------------------------
 add_library(mini_redis_core
         src/mini_redis.c
+        src/store.c
 )
 
 target_include_directories(mini_redis_core
@@ -63,4 +64,19 @@ target_link_libraries(test_smoke
 add_test(
         NAME smoke_test
         COMMAND test_smoke
+)
+
+add_executable(test_store
+        tests/test_store.c
+)
+
+target_link_libraries(test_store
+        PRIVATE
+        mini_redis_core
+        unity
+)
+
+add_test(
+        NAME store_test
+        COMMAND test_store
 )
