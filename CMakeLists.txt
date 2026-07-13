@@ -71,9 +71,14 @@ add_executable(test_store
 )
 
 target_link_libraries(test_store
-        PRIVATE
+        PUBLIC
         mini_redis_core
         unity
+)
+
+target_compile_definitions(unity
+        PUBLIC
+        UNITY_INCLUDE_DOUBLE
 )
 
 add_test(
