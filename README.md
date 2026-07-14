@@ -45,3 +45,17 @@ Only commands supported by the existing string key/value store are implemented:
 - `GET key`
 - `DEL key`
 - `EXISTS key`
+- 
+## Server behavior
+
+- IPv4 TCP listener, loopback by default
+- configurable bind address and port
+- one active blocking client at a time
+- sequential client reconnects with one persistent Store
+- fragmented TCP request buffering
+- multiple buffered/pipelined command processing
+- complete response writes with EINTR and partial-send handling
+- SIGPIPE protection on Linux/macOS
+- SIGINT/SIGTERM shutdown
+- malformed/oversized request error response followed by connection close
+- CLI options: `--bind`, `--port`, `--once`, `--help`
