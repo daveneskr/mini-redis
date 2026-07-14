@@ -11,6 +11,8 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 add_library(mini_redis_core
         src/mini_redis.c
         src/store.c
+        src/resp.c
+        src/command.c
 )
 
 target_include_directories(mini_redis_core
@@ -84,4 +86,34 @@ target_compile_definitions(unity
 add_test(
         NAME store_test
         COMMAND test_store
+)
+
+add_executable(test_resp
+        tests/test_resp.c
+)
+
+target_link_libraries(test_resp
+        PRIVATE
+        mini_redis_core
+        unity
+)
+
+add_test(
+        NAME resp_test
+        COMMAND test_resp
+)
+
+add_executable(test_command
+        tests/test_command.c
+)
+
+target_link_libraries(test_command
+        PRIVATE
+        mini_redis_core
+        unity
+)
+
+add_test(
+        NAME command_test
+        COMMAND test_command
 )
