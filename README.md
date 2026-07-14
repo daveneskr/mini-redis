@@ -34,3 +34,14 @@ This project is not intended to be production-ready Redis. It will not initially
 - Persistence
 - Benchmarking
 - Dockerized deployment
+- 
+## Supported commands
+
+Only commands supported by the existing string key/value store are implemented:
+
+- `PING [message]`
+- `ECHO message`
+- `SET key value`
+- `GET key`
+- `DEL key`
+- `EXISTS key`
