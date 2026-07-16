@@ -23,11 +23,15 @@ add_library(mini_redis_core
         src/store.c
         src/resp.c
         src/command.c
+        src/client_session.c
+        src/client_registry.c
 )
 
 target_include_directories(mini_redis_core
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 enable_project_warnings(mini_redis_core)
@@ -76,6 +80,10 @@ function(add_mini_redis_test target_name test_source test_name)
             mini_redis_core
             unity
     )
+    target_include_directories(${target_name}
+            PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/src
+    )
     enable_project_warnings(${target_name})
     add_test(NAME ${test_name} COMMAND ${target_name})
 endfunction()
@@ -88,4 +96,6 @@ add_mini_redis_test(test_request_processor tests/test_request_processor.c reques
 
 if(UNIX)
     add_mini_redis_test(test_server tests/test_server.c server_test)
+    add_mini_redis_test(test_client_session tests/test_client_session.c client_session_test)
+    add_mini_redis_test(test_client_registry tests/test_client_registry.c client_registry_test)
 endif()
