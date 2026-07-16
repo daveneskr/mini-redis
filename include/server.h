@@ -14,11 +14,30 @@ extern "C" {
 #define MINI_REDIS_DEFAULT_BIND_ADDRESS "127.0.0.1"
 #define MINI_REDIS_DEFAULT_PORT 6380U
 #define MINI_REDIS_DEFAULT_BACKLOG 8
+#define MINI_REDIS_DEFAULT_MAX_CLIENTS 64U
+
+typedef struct ServerStats {
+    unsigned long long accepted_connections;
+    unsigned long long active_clients;
+    unsigned long long peak_clients;
+    unsigned long long completed_commands;
+    unsigned long long protocol_errors;
+    unsigned long long rejected_connections;
+    unsigned long long receive_errors;
+    unsigned long long send_errors;
+} ServerStats;
 
 typedef struct ServerConfig {
     const char *bind_address;
     uint16_t port;
     int listen_backlog;
+
+    /**
+     * Maximum active clients for the future event-loop server. A value of 0
+     * means use MINI_REDIS_DEFAULT_MAX_CLIENTS, which preserves compatibility
+     * with older designated initializers that did not set this field.
+     */
+    size_t max_clients;
 
     /**
      * When false, server_run returns after the first client session. This is
