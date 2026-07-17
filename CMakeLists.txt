@@ -50,52 +50,65 @@ target_link_libraries(mini_redis
 
 enable_project_warnings(mini_redis)
 
-# -----------------------------
-# Unity
-# -----------------------------
-include(FetchContent)
+option(MINI_REDIS_BUILD_TESTS "Build Mini Redis tests" ON)
 
-FetchContent_Declare(
-        unity
-        GIT_REPOSITORY https://github.com/ThrowTheSwitch/Unity.git
-        GIT_TAG master
-)
+if(MINI_REDIS_BUILD_TESTS)
+    # -----------------------------
+    # Unity
+    # -----------------------------
+    include(FetchContent)
 
-FetchContent_MakeAvailable(unity)
-
-target_compile_definitions(unity
-        PUBLIC
-        UNITY_INCLUDE_DOUBLE
-)
-
-# -----------------------------
-# CTest
-# -----------------------------
-enable_testing()
-
-function(add_mini_redis_test target_name test_source test_name)
-    add_executable(${target_name} ${test_source})
-    target_link_libraries(${target_name}
-            PRIVATE
-            mini_redis_core
+    FetchContent_Declare(
             unity
+            GIT_REPOSITORY https://github.com/ThrowTheSwitch/Unity.git
+            GIT_TAG master
     )
-    target_include_directories(${target_name}
-            PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}/src
+
+    FetchContent_MakeAvailable(unity)
+
+    target_compile_definitions(unity
+            PUBLIC
+            UNITY_INCLUDE_DOUBLE
     )
-    enable_project_warnings(${target_name})
-    add_test(NAME ${test_name} COMMAND ${target_name})
-endfunction()
 
-add_mini_redis_test(test_smoke tests/test_smoke.c smoke_test)
-add_mini_redis_test(test_store tests/test_store.c store_test)
-add_mini_redis_test(test_resp tests/test_resp.c resp_test)
-add_mini_redis_test(test_command tests/test_command.c command_test)
-add_mini_redis_test(test_request_processor tests/test_request_processor.c request_processor_test)
+    # -----------------------------
+    # CTest
+    # -----------------------------
+    enable_testing()
 
-if(UNIX)
-    add_mini_redis_test(test_server tests/test_server.c server_test)
-    add_mini_redis_test(test_client_session tests/test_client_session.c client_session_test)
-    add_mini_redis_test(test_client_registry tests/test_client_registry.c client_registry_test)
+    function(add_mini_redis_test target_name test_source test_name)
+        if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${test_source}")
+            message(STATUS "Skipping ${target_name}: ${test_source} is not present")
+            return()
+        endif()
+
+        add_executable(${target_name} ${test_source})
+        target_link_libraries(${target_name}
+                PRIVATE
+                mini_redis_core
+                unity
+        )
+        target_include_directories(${target_name}
+                PRIVATE
+                ${CMAKE_CURRENT_SOURCE_DIR}/src
+        )
+        enable_project_warnings(${target_name})
+        add_test(NAME ${test_name} COMMAND ${target_name})
+    endfunction()
+
+    add_mini_redis_test(test_smoke tests/test_smoke.c smoke_test)
+    add_mini_redis_test(test_store tests/test_store.c store_test)
+    add_mini_redis_test(test_resp tests/test_resp.c resp_test)
+    add_mini_redis_test(test_command tests/test_command.c command_test)
+    add_mini_redis_test(test_request_processor tests/test_request_processor.c request_processor_test)
+    add_mini_redis_test(test_resp_fragmentation tests/test_resp_fragmentation.c resp_fragmentation_test)
+    add_mini_redis_test(test_request_processor_atomicity tests/test_request_processor_atomicity.c request_processor_atomicity_test)
+
+    if(UNIX)
+        add_mini_redis_test(test_server tests/test_server.c server_test)
+        add_mini_redis_test(test_client_session tests/test_client_session.c client_session_test)
+        add_mini_redis_test(test_client_registry tests/test_client_registry.c client_registry_test)
+        add_mini_redis_test(test_server_nonblocking tests/test_server_nonblocking.c server_nonblocking_test)
+        add_mini_redis_test(test_server_event_loop tests/test_server_event_loop.c server_event_loop_test)
+    endif()
 endif()

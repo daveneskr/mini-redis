@@ -36,7 +36,13 @@ static RespParseResult parse_unsigned_line(const char *buffer,
     if (*cursor >= buffer_len) {
         return RESP_PARSE_INCOMPLETE;
     }
-    if (!has_crlf_at(buffer, buffer_len, *cursor)) {
+    if (buffer[*cursor] != '\r') {
+        return RESP_PARSE_MALFORMED;
+    }
+    if (*cursor + 1U >= buffer_len) {
+        return RESP_PARSE_INCOMPLETE;
+    }
+    if (buffer[*cursor + 1U] != '\n') {
         return RESP_PARSE_MALFORMED;
     }
 

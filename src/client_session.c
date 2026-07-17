@@ -1,6 +1,7 @@
 #include "client_session.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 #if defined(_WIN32)
 #include <winsock2.h>
@@ -54,4 +55,34 @@ bool client_session_has_pending_output(const ClientSession *client) {
 
 bool client_session_input_is_full(const ClientSession *client) {
     return client != NULL && client->input_length >= sizeof(client->input_buffer);
+}
+
+bool client_session_consume_input(ClientSession *client, size_t consumed) {
+    if (client == NULL || consumed == 0U || consumed > client->input_length) {
+        return false;
+    }
+
+    const size_t remaining = client->input_length - consumed;
+    if (remaining > 0U) {
+        memmove(client->input_buffer,
+                client->input_buffer + consumed,
+                remaining);
+    }
+    client->input_length = remaining;
+    return true;
+}
+
+void client_session_reset_output(ClientSession *client) {
+    if (client == NULL) {
+        return;
+    }
+
+    client->output_length = 0U;
+    client->output_offset = 0U;
+}
+
+bool client_session_ready_to_close(const ClientSession *client) {
+    return client != NULL &&
+           client->close_requested &&
+           !client_session_has_pending_output(client);
 }
