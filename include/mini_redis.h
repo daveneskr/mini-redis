@@ -1,6 +1,7 @@
 #ifndef MINI_REDIS_H
 #define MINI_REDIS_H
 
+#include "mini_redis_limits.h"
 #include "resp.h"
 #include "server.h"
 #include "store.h"
@@ -10,8 +11,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define MINI_REDIS_MAX_REPLY_SIZE (RESP_MAX_COMMAND_SIZE + 64U)
 
 typedef ServerConfig MiniRedisConfig;
 
@@ -37,10 +36,14 @@ typedef enum MiniRedisResult {
 /**
  * Parses, executes, and serializes at most one RESP command from input.
  *
+ * Before executing a parsed command, the processor computes the capacity
+ * required for that command's possible reply. If output_capacity is smaller,
+ * it returns MINI_REDIS_PROCESS_OUTPUT_TOO_SMALL without mutating the store.
+ *
  * On MINI_REDIS_PROCESS_OK, bytes_consumed and output_length are positive.
  * On parser protocol/limit/allocation errors, an RESP error is serialized when
- * the output buffer is large enough; the caller should send it and close the
- * connection because stream resynchronization is not attempted.
+ * possible; the caller should send it and close the connection because stream
+ * resynchronization is not attempted.
  */
 MiniRedisProcessResult mini_redis_process_one(
     Store *store,

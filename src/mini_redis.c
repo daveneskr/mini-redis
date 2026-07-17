@@ -117,6 +117,22 @@ MiniRedisProcessResult mini_redis_process_one(
         return MINI_REDIS_PROCESS_INTERNAL_ERROR;
     }
 
+    /*
+     * Preflight the command's possible serialized reply before execution. This
+     * preserves the flexible output-capacity API while ensuring mutating
+     * commands never change the store unless their response can be queued.
+     */
+    const size_t required_capacity = command_reply_capacity_required(
+        store,
+        command);
+    if (required_capacity == 0U || output_capacity < required_capacity) {
+        command_destroy(command);
+        *bytes_consumed = 0U;
+        return required_capacity == 0U
+            ? MINI_REDIS_PROCESS_INTERNAL_ERROR
+            : MINI_REDIS_PROCESS_OUTPUT_TOO_SMALL;
+    }
+
     const RespReply reply = command_execute(store, command);
 
     /*
@@ -169,11 +185,13 @@ MiniRedisResult mini_redis_run(const MiniRedisConfig *config) {
             return MINI_REDIS_INVALID_CONFIGURATION;
         case SERVER_SOCKET_ERROR:
         case SERVER_SOCKET_OPTION_ERROR:
+        case SERVER_NONBLOCKING_ERROR:
         case SERVER_BIND_ERROR:
         case SERVER_LISTEN_ERROR:
         case SERVER_SIGNAL_ERROR:
             return MINI_REDIS_SERVER_START_FAILED;
         case SERVER_ACCEPT_ERROR:
+        case SERVER_POLL_ERROR:
         case SERVER_CLIENT_IO_ERROR:
         case SERVER_CLIENT_PROTOCOL_ERROR:
         case SERVER_INTERNAL_ERROR:
